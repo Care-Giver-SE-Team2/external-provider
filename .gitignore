@@ -1,0 +1,9 @@
+node_modules/
+.env
+
+# What the server remembers: the application, CareLink credentials and the webhook log
+data/
+.DS_Store
+
+# Compiled from src/client by `npm run build`
+public/js/

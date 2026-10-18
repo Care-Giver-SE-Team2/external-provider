@@ -1,0 +1,20 @@
+{
+  // The browser code. Compiled to public/js, which the server serves as it is.
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2023", "dom"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": [],
+    "rootDir": ".",
+    "outDir": "../../public/js",
+    "sourceMap": true,
+    "inlineSources": true,
+    "strict": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts"]
+}

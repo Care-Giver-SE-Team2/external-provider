@@ -1,0 +1,24 @@
+{
+  "name": "external-provider",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A value-added service provider's system that works with CareLink through its Open API",
+  "type": "module",
+  "main": "src/server.ts",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p src/client",
+    "start": "npm run build && node src/server.ts",
+    "dev": "tsc -p src/client --watch --preserveWatchOutput & node --watch src/server.ts",
+    "add-staff": "node src/add-staff.ts",
+    "carelink:request-job": "node src/request-carelink-job.ts",
+    "typecheck": "tsc -p . && tsc -p src/client --noEmit",
+    "test": "node --test \"src/server/**/*.test.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "^7.0.2"
+  }
+}
