@@ -10,8 +10,6 @@ export const isApproved = (p: Partner | null): boolean => p?.app === 'approved';
 /** Connected: approved, holding credentials, and the partner answered the last call. */
 export const isConnected = (p: Partner): boolean => isApproved(p) && !!p.credentials && p.conn === 'connected';
 
-export const connectedPartners = (s: State): Partner[] => s.partners.filter(isConnected);
-
 const TAB_STATUSES: Record<Tab, JobStatus[]> = {
   new: ['new'],
   accepted: ['accepted'],

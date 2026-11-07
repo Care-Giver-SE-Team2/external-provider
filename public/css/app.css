@@ -193,31 +193,8 @@ p {
   color: var(--input-border);
 }
 
-.cl-pill {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.09);
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.cl-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #f0614f;
-}
-
-.cl-dot.on {
-  background: #3fbf6f;
-}
-
 .user {
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 10px;

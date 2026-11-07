@@ -68,13 +68,20 @@ Back in BrightHands, **Check status** (or sign in to the Partner Portal there wh
 approved, the server collects the client ID, client secret and webhook signing secret, once, and keeps them in
 `data/partners/carelink.json`. The page goes to **Connection**: the client ID shows, the secrets never do.
 
-Then, on the Connection tab:
+Then, on the Connection tab (changing the services or the webhook needs the portal sign-in at the bottom of the page):
 
 | Do | Expect |
 | --- | --- |
 | **Test connection** | Connected, with how long the token took |
 | **Send test event** | A toast that the test event arrived, and a ping under Webhook activity with ✓ Signature valid |
 | Change the webhook URL and **Save URL** | New deliveries go there (if the port changes, say) |
+| Tick or untick under **Services** and **Save services** | Saved; CareLink's application shows the new list, and it dispatches only those from now on |
+
+If **Test connection** says CareLink issued a token but its job API refused it ("The access token's client is no
+longer valid"), CareLink's job service (report) never heard that BrightHands was approved. It learns that from a
+`ProviderUpdated` event on LocalStack's queues, and LocalStack keeps nothing across restarts. To send the event
+again, a CareLink manager suspends BrightHands and reinstates it (manager screen → providers); each step publishes
+`ProviderUpdated`.
 
 If the test event never arrives, CareLink cannot reach the webhook URL: check the port, and that Docker resolves
 `host.docker.internal`. CareLink retries for about 8.6 hours, so it arrives once the URL is right.

@@ -178,6 +178,9 @@ export const portalSignIn = (partner: string, email: string, password: string) =
 export const portalApplication = (partner: string) => serverFetch<PortalAnswer>(`${base(partner)}/portal/application`);
 export const reissueCredentials = (partner: string) => post<{ credentials: Credentials }>(partner, '/portal/credentials/reissue');
 export const sendTestEvent = (partner: string) => post<unknown>(partner, '/portal/webhook/test');
+export const changeServices = (partner: string, services: string[]) =>
+  serverFetch<{ application: Application }>(`${base(partner)}/portal/services`, { method: 'PUT', body: JSON.stringify({ services }) });
+
 export const changeWebhookUrl = (partner: string, url: string) =>
   serverFetch<{ application: Application }>(`${base(partner)}/portal/webhook`, { method: 'PUT', body: JSON.stringify({ url }) });
 

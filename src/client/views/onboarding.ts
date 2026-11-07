@@ -189,6 +189,40 @@ function settingsCard(p: Partner, title = 'Settings in the server’s .env'): Ht
   </section>`;
 }
 
+/** What the partner may send. Shown as the partner last said; changing it needs its portal. */
+function servicesCard(s: State, p: Partner): Html {
+  if (!p.application) {
+    // Credentials put in .env, with the application made elsewhere: the server has not seen it yet.
+    return html`<section class="card" style="gap:10px">
+      <h2>Services</h2>
+      <p class="soft" style="margin:0">What ${p.name} may send BrightHands. To see them and change them, sign in to ${p.name}’s portal below with the email and password the application was made with.</p>
+    </section>`;
+  }
+  const saved = p.application?.services ?? [];
+  const chosen = s.servicesDraft ?? saved;
+  // A service the partner has on record that this portal does not know of still shows, so it can be unticked.
+  const names = [...CARELINK_SERVICES, ...saved.filter((x) => !CARELINK_SERVICES.includes(x))];
+  return html`<section class="card" style="gap:14px">
+    <h2>Services</h2>
+    <p class="soft" style="margin:0">What ${p.name} may send BrightHands. It offers a job only for these.</p>
+    <div class="chips">
+      ${names.map((name) => {
+        const on = chosen.includes(name);
+        return p.portal
+          ? html`<label class="chip${on ? ' on' : ''}"><input type="checkbox" data-check="offer" value="${name}" ${on ? 'checked' : ''} />${name}</label>`
+          : html`<span class="chip${on ? ' on' : ''}" style="cursor:default">${name}</span>`;
+      })}
+    </div>
+    ${s.servicesMsg && html`<div class="banner ${s.servicesMsg.kind === 'success' ? 'banner-success' : 'banner-error'}" role="status">${s.servicesMsg.text}</div>`}
+    ${p.portal
+      ? html`<div class="actions" style="gap:10px">
+          ${busyButton({ action: 'saveServices', label: 'Save services', busyLabel: 'Saving…', busy: s.busy === 'services', kind: 'secondary' })}
+          <span class="small muted">Jobs ${p.name} already offered stay offered.</span>
+        </div>`
+      : html`<span class="small muted">As ${p.name} last said. To change them, sign in to ${p.name}’s portal below.</span>`}
+  </section>`;
+}
+
 function webhookCard(s: State, p: Partner): Html {
   const a = p.application;
   const busy = s.busy === 'webhookUrl';
@@ -246,18 +280,18 @@ export function connection(s: State, p: Partner): Html {
         ${credentials}
         ${a ? html`<dl class="dl divided" style="grid-template-columns:150px 1fr;gap:6px 12px;font-size:15px;padding-top:12px">
             ${a.reviewedAt ? html`<dt>Provider since</dt><dd>${when(fromIso(a.reviewedAt))}</dd>` : ''}
-            <dt>Services listed</dt><dd>${a.services.join(', ')}</dd>
             <dt>Application</dt><dd class="mono">${a.id}</dd>
           </dl>` : ''}
       </section>
       ${connectionStatus(s, p)}
     </div>
     ${settingsCard(p)}
+    ${p.canApply && (a ? p.app === 'approved' : c) && servicesCard(s, p)}
     ${a && webhookCard(s, p)}
     ${p.canApply
       ? p.portal
         ? html`<p class="small muted">Signed in to ${p.name}’s portal as ${p.portal.email} for an hour.</p>`
-        : portalSignIn(s, p, c ? 'To change the webhook or send a test event, sign in.' : 'To collect the credentials, or pick up an application made elsewhere, sign in.')
+        : portalSignIn(s, p, c ? 'To change the services or the webhook, or send a test event, sign in.' : 'To collect the credentials, or pick up an application made elsewhere, sign in.')
       : ''}
     ${removeCard(s, p)}
   </div>`;

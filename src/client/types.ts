@@ -47,6 +47,7 @@ export type Busy =
   | 'test'
   | 'ping'
   | 'webhookUrl'
+  | 'services'
   | 'accept'
   | 'decline'
   | 'complete';
@@ -247,6 +248,9 @@ export interface State {
   submitErr: string | null;
   webhookUrlInput: string;
   webhookMsg: { kind: 'success' | 'error'; text: string } | null;
+  /** The services being chosen on the Services card; null until one is ticked or unticked. */
+  servicesDraft: string[] | null;
+  servicesMsg: { kind: 'success' | 'error'; text: string } | null;
 
   // Jobs and webhooks
   jobs: Job[];
