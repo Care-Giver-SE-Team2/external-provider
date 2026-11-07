@@ -104,6 +104,7 @@ The browser never talks to a partner, and never sees a secret. The server does, 
 | `POST portal/session` / `DELETE` | Signs in to the partner's portal (kept in memory, an hour), and answers as below |
 | `GET portal/application` | The application's status. Once approved, the server collects the credentials, once |
 | `POST portal/credentials/reissue` | New client and webhook secrets, when the first ones were lost |
+| `PUT portal/services` | Changes the services the partner may send (CareLink's `PUT /api/open/v1/portal/services`) |
 | `PUT portal/webhook`, `POST portal/webhook/test` | Changes the webhook URL; asks the partner to send a `ping` |
 | `POST connection/test` | Fetches a new token |
 | `GET jobs`, `GET jobs/{id}`, `POST jobs/{id}/accept`, `decline`, `complete` | The job API. Send an `Idempotency-Key` made once per action, so a retry does not act twice |

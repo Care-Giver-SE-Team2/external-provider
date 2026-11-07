@@ -1,5 +1,5 @@
 import { html, type Html } from '../html.js';
-import { PARTNER_SCREENS, connectedPartners, jobsIn } from '../model.js';
+import { PARTNER_SCREENS, jobsIn } from '../model.js';
 import type { Screen, State } from '../types.js';
 
 type NavKey = 'overview' | 'jobs' | 'customers' | 'schedule' | 'staff' | 'services' | 'billing' | 'partners';
@@ -20,8 +20,6 @@ const NAV: readonly [label: string, key: NavKey][] = [
 const navOf = (screen: Screen): Screen => (screen === 'customer' ? 'customers' : PARTNER_SCREENS.has(screen) || screen === 'partnerNew' ? 'partners' : screen);
 
 export function appBar(s: State): Html {
-  const connected = connectedPartners(s);
-  const pill = connected.length === 1 ? `Connected to ${connected[0].name}` : connected.length ? `${connected.length} partners connected` : 'No partner connected';
   const active = navOf(s.screen);
   const newCount = jobsIn(s, 'new', true).length;
   const name = s.user?.name ?? '';
@@ -33,7 +31,6 @@ export function appBar(s: State): Html {
         <div class="logo" aria-hidden="true"></div>
         <div class="stack"><span class="wordmark">BrightHands</span><span class="on-dark-sub">Provider Portal</span></div>
       </div>
-      <div class="cl-pill"><span class="cl-dot${connected.length ? ' on' : ''}"></span>${pill}</div>
       ${s.loggedIn &&
       html`<div class="user">
         <div class="avatar" aria-hidden="true">${initials}</div>

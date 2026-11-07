@@ -64,6 +64,8 @@ const initialState = (): State => ({
   submitErr: null,
   webhookUrlInput: '',
   webhookMsg: null,
+  servicesDraft: null,
+  servicesMsg: null,
 
   jobs: [],
   hooks: [],
@@ -525,6 +527,8 @@ function openPartnerPage(p: Partner): void {
     submitErr: null,
     webhookUrlInput: '',
     webhookMsg: null,
+    servicesDraft: null,
+    servicesMsg: null,
     confirmRemove: false,
   } satisfies Partial<State>);
 }
@@ -812,8 +816,15 @@ const actions = {
     await busyWith('test', async () => {
       try {
         const r = await carelink.testConnection(p.id);
-        patchPartner(p.id, { conn: 'connected', lastTest: { at: fromIso(r.at), ms: r.ms }, connMsg: `Test passed. New token fetched in ${r.ms} ms.` });
+        patchPartner(p.id, { lastTest: { at: fromIso(r.at), ms: r.ms } });
+        // A token is half the test: the job API must take it too. Each step says when it is the one that failed.
         await loadJobs(p.id);
+        const after = partner(p.id)!;
+        patchPartner(p.id, {
+          connMsg: after.conn === 'connected'
+            ? `Test passed. New token fetched in ${r.ms} ms, and the job API took it.`
+            : `${p.name} issued a token, but its job API refused it: ${after.jobsErr ?? 'no reason given'}`,
+        });
       } catch (e) {
         const conn = connFrom(e);
         const why =
@@ -851,6 +862,31 @@ const actions = {
         if (portalExpired(p.id, e)) return;
         const fieldMsg = e instanceof ServerError ? Object.values(e.fields)[0] : undefined;
         state.webhookMsg = { kind: 'error', text: fieldMsg ?? text(e) };
+      }
+    });
+  },
+
+  async saveServices() {
+    const p = here();
+    if (!p) return;
+    const services = state.servicesDraft ?? p.application?.services ?? [];
+    if (!services.length) {
+      state.servicesMsg = { kind: 'error', text: 'Choose at least one service.' };
+      render();
+      return;
+    }
+    await busyWith('services', async () => {
+      try {
+        const r = await carelink.changeServices(p.id, services);
+        patchPartner(p.id, { application: r.application as Application });
+        Object.assign(state, {
+          servicesDraft: null,
+          servicesMsg: { kind: 'success', text: `Saved. ${p.name} now offers BrightHands only ${services.join(', ')}. Jobs already offered stay.` },
+        });
+      } catch (e) {
+        if (portalExpired(p.id, e)) return;
+        const fieldMsg = e instanceof ServerError ? Object.values(e.fields)[0] : undefined;
+        state.servicesMsg = { kind: 'error', text: fieldMsg ?? text(e) };
       }
     });
   },
@@ -1018,6 +1054,11 @@ root.addEventListener('change', (e) => {
   if (el.dataset.check === 'service') {
     state.form.services = el.checked ? [...state.form.services, el.value] : state.form.services.filter((x) => x !== el.value);
     delete state.errs.services;
+    render();
+  } else if (el.dataset.check === 'offer') {
+    const now = state.servicesDraft ?? here()?.application?.services ?? [];
+    state.servicesDraft = el.checked ? [...now, el.value] : now.filter((x) => x !== el.value);
+    state.servicesMsg = null;
     render();
   } else if (el.dataset.check === 'terms') {
     state.form.terms = el.checked;

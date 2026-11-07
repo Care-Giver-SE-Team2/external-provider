@@ -219,6 +219,8 @@ export function createCareLink({ baseUrl, credentials, fetch: fetchFn = fetch, n
     rotateWebhookSecret: (portalToken: string) =>
       call<{ webhookSecret: string }>('/portal/webhook/secret/rotate', { method: 'POST', bearer: portalToken }),
     sendTestEvent: (portalToken: string) => call<unknown>('/portal/webhook/test', { method: 'POST', bearer: portalToken }),
+    updateServices: (portalToken: string, services: string[]) =>
+      call<{ services: string[] }>('/portal/services', { method: 'PUT', body: { services }, bearer: portalToken }),
     updateWebhook: (portalToken: string, settings: { url: string; events: string[] }) =>
       call<{ url: string; events: string[] }>('/portal/webhook', { method: 'PUT', body: settings, bearer: portalToken }),
 

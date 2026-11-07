@@ -178,6 +178,17 @@ export function createApi({ store, carelink, settings, now = Date.now }: ApiOpti
 
     ['POST', /^portal\/webhook\/test$/, () => asPortal(carelink.sendTestEvent)],
 
+    // What CareLink may send. It dispatches only these from now on; jobs already offered stay offered.
+    ['PUT', /^portal\/services$/, async (req) => {
+      const { services } = (await readJson(req)) as { services?: unknown };
+      const list = Array.isArray(services) ? services.filter((s): s is string => typeof s === 'string') : [];
+      const saved = await asPortal((t) => carelink.updateServices(t, list));
+      await store.update((d) => {
+        if (d.application) d.application.services = saved.services;
+      });
+      return { application: store.data.application };
+    }],
+
     // Where CareLink sends webhooks. Both job events stay subscribed: this portal handles both.
     ['PUT', /^portal\/webhook$/, async (req) => {
       const { url } = (await readJson(req)) as { url?: string };
